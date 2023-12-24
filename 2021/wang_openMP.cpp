@@ -42,10 +42,11 @@ int main(){
         ofstream myfile;
         myfile.open("primes.txt");
 
+        int sum = 0;
         for(i = 0; i < 256; i++ ){
             myfile << "The character " << i << " frequency is " << num[i] << endl;
+            sum = sum + num[i];
         }
-
         cout << left << setw(10) << thread << left << setw(15) << duration << endl;
     }
 
