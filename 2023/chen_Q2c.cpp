@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cmath>
 #include <iomanip>
-#include <omp.h>
 #include <random>
 #include <chrono>
 
@@ -13,7 +12,6 @@ pair<double, double> Calculate_area(double inner_radius, double outer_radius, in
     int count = 0;
     
     auto start = chrono::high_resolution_clock::now();
-    #pragma omp parallel for num_threads(64) reduction(+:count)
     for(int i = 0; i<num_samples; i++ ){
         double x = uniform_real_distribution<double>(-2*outer_radius, 2*outer_radius)(gen);
         double y = uniform_real_distribution<double>(-2*outer_radius, 2*outer_radius)(gen);
@@ -36,8 +34,9 @@ pair<double, double> Calculate_area(double inner_radius, double outer_radius, in
 int main(){
     double r = 2.0;
     double R = 5.0;
-    double A_exact = M_PI*r*r*(2*M_PI*R);    
-    int n[] = {1000000, 2000000, 4000000, 8000000, 16000000};
+    double pi = 22.0/7.0;
+    double A_exact = pi * pow(r,2) * (2 * pi * R);    
+    int n[] = {10000, 100000, 1000000, 10000000};
     int N;
     int n_max = sizeof(n)/sizeof(n[0]);
 
