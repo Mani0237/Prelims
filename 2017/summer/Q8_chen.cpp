@@ -59,11 +59,23 @@ int main(int argc, char *argv[]) {
     // using MPI_reduce to sum up all local integrals
     MPI_Reduce(&local_integral, &total_integral, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
+    // array to store local integrals from all processes
+    double* all_integrals = new double[size];
+    
+    // using MPI_Gather to gather local integrals from all processes to root process
+    MPI_Gather(&local_integral, 1, MPI_DOUBLE, all_integrals, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
     // printing the results using master
     if (rank == 0) {
         cout << "The total integral is = " << total_integral << endl;
+        cout << "Individual integrals from each process:" << endl;
+        for (int i = 0; i < size; i++) {
+            cout << "Process " << i << ": " << all_integrals[i] << endl;
+        }
     }
 
+    delete[] all_integrals;
+    
     MPI_Finalize();
     return 0;
 
