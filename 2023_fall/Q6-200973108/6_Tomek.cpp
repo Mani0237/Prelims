@@ -87,6 +87,7 @@ int main() {
     const int num_zones[] = {8, 16, 32, 64, 128, 256}; // Number of zones for each mesh resolution
 
     // Output table header
+    cout << "----------------------------------------------------------------------------------------" << endl;
     cout << setw(10) << "Mesh Size" << setw(15) << "L1 Norm" << setw(15) << "L2 Norm" << setw(20) << "L-infinity Norm" << setw(15) << "Order (L2)" << endl;
     cout << "----------------------------------------------------------------------------------------" << endl;
 
@@ -109,9 +110,7 @@ int main() {
 
         // Solve the heat equation
         solve_heat_equation(domain, dt, dx, k, num_zone, num_steps);
-        for (int i = 0; i < num_zone; i++) {
-            cout << domain[i] << endl;
-        }
+
         // Calculate residuals
         calculate_residuals(residuals, domain, num_zone, dx);
 
