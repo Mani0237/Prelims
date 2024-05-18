@@ -5,7 +5,7 @@
 #include <iostream>
 using namespace std; 
 
-const int MAX_SIZE = 200 ;
+const int MAX_SIZE = 512 ;
 
 void gauss_elimination(double A[][MAX_SIZE], double B[], double x[], int n ){
      //STEP 1: Taking the inputs (done in main file)
