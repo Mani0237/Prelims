@@ -1,134 +1,128 @@
 #include <iostream>
-#include <fstream>
-#include <string>
 #include <cmath>
 #include <iomanip>
+#include <numeric>
 
-using namespace std;
+// Constants
+const int num_N_values = 6;
+const int N_values[num_N_values] = {8, 16, 32, 64, 128, 256};
+const double left_x = 0.0;
+const double right_x = 5.0;
 
-const double L = 5.0;
-
-// defining function f(x) which act as source term for MES
-double f(double x) {
-    //return 6*(x+1)-2.0*tanh(x-5)/(cosh(x-5)*cosh(x-5));
-    return 6*x;
-}
-
-// Function to evaluate exact solution
-double T_exact(double x) {
-    //return 1.0 + pow(x+1, 3) + tanh(x-5);
-    return 100.0 + pow(x,3);
-}
-
-// Function to evaluate boundary conditions
-double evaluate_boundary(double x) {
-    return T_exact(x); 
-}
-
-// calculate residual and write in file
-double calculate_residual(double* u, double* u_new, int N, double h) {
-    double res = 0.0;
-    for (int i = 1; i < N-1; i++){
-        res += pow(u_new[i] - u[i], 2);
-    }
-    res = sqrt(res/(N-2));
-    return res;
-}
-
-// Function to calculate norms
-void calculate_norms(double* T, int N, double h, double& L1, double& L2, double& Linf) {
-    L1 = 0.0;
-    L2 = 0.0;
-    Linf = 0.0;
-    for (int i = 0; i < N; ++i) {
-        double x = (i*h);
-        double error = abs(T[i] - T_exact(x));
-        L1 = L1 + error;
-        L2 += L2 + error * error;
-        if (error > Linf) {
-            Linf = error;
-        }
-    }
-    L1 = h * L1;
-    L2 = h * sqrt(L2);
-}
+// Function prototypes
+double analytical(double x);
+double exact_source(double x);
+void FD(int n, double* x, double w, double* initU, double* boundU, double* solU, double* residual, int& k);
+double frobNorm(double* A, int size);
+double LinfNorm(double* vec, int size);
 
 int main() {
-    // defining calculation parameters to be used 
-    int N_zones[] = {8, 16, 32, 64, 128, 256};   // grid spacing for Jacobi solver
-    double tol = 1.0e-5;                         // tolerance for termination   
-    int N_max = sizeof(N_zones) / sizeof(int);   // total number of grid spacing to be tested 
+    for (int n_idx = 0; n_idx < num_N_values; ++n_idx) {
+        int N = N_values[n_idx];
+        int num_zones = N + 1;
+        double dx = (right_x - left_x) / (num_zones - 1);
 
-    cout << endl;
-    cout << "       ********** Calculations Started **********        " << endl;
-    cout << "--------------------------------------------------------------------------" << endl;
-    cout << setw(10) << "N_zones" << setw(20) << "L1 norm" << setw(20) << "L2 Norm" << setw(20) << "L_inf" << endl;
-    cout << "--------------------------------------------------------------------------" << endl;
-    
-    for (int k = 0; k < N_max; k++) {
-        // defining some local variables
-        int N = N_zones[k] + 1;
-        double h = L / (N-1);
-        double dx = h;
-        double res = 1.0;
+        // Generate mesh points
+        double x[num_zones];
+        for (int i = 0; i < num_zones; ++i) {
+            x[i] = i * dx;
+        }
+
+        double initU[num_zones] = {0.0};
+        double boundU[num_zones] = {0.0};
+        double ua = analytical(left_x);
+        double ub = analytical(right_x);
+        boundU[0] = ua;
+        boundU[num_zones - 1] = ub;
+
+        // Get approximated solution using finite difference method
+        double sol[num_zones];
+        double residual[num_zones];
+        int k;
         double w = 0.5;
+        FD(N, x, w, initU, boundU, sol, residual, k);
 
-        // initialize the solution and boundary conditions
-        double T[N] = {0};
-        double T_new[N] = {0};
-        T[0] = T_exact(0.0);
-        T[N-1] = T_exact(5.0);
-        T_new[0] =  T[0];
-        T_new[N-1] =  T[N-1];
+        // Calculate norms
+        double L2 = frobNorm(residual, num_zones);
+        double Linf = LinfNorm(residual, num_zones);
 
-        // opening file to store residual
-        ofstream res_file;
-        string filename = "res_N" + to_string(N_zones[k]) + ".txt";
-        res_file.open(filename);
-        
-        // implementing the weighted Jacobi solver
-        while (res > tol) {
-            for (int i = 1; i < N-1; i++) {
-                T_new[i] = 0.5 * (T[i+1] + T[i-1] - h*h*f(i * dx));
-            }
-
-            // calculating residual and writing to file
-            res = calculate_residual(T, T_new, N, h);
-            res_file << fixed << setprecision(4);
-            res_file << res << endl;
-
-            // update T for next iteration
-            for (int i = 1; i < N - 1; ++i) {
-                T[i] = T_new[i] ;
-            }
-        }
-
-        // closing residual file
-        res_file.close();
-
-        // calculate norms
-        double L1 = 0.0;
-        double L2 = 0.0;
-        double Linf = 0.0;
-        calculate_norms(T, N, h, L1, L2, Linf);
-
-        // Output the results for the current mesh resolution
-        cout << fixed << setprecision(4);
-        cout << setw(10) << N_zones[k] << setw(20) << L1 << setw(20) << L2 << setw(20) << Linf << endl;
-
-        // Save solution and exact values to a file
-        ofstream sol_file;
-        string sol_filename = "solution_N" + to_string(N_zones[k]) + ".txt";
-        sol_file.open(sol_filename);
-        sol_file << fixed << setprecision(4);
-        for (int i = 0; i < N; ++i) {
-            double x_coord = i * h;
-            sol_file<< setw(15) << x_coord << setw(20) << T[i] << setw(20) << T_exact(x_coord) << endl;
-        }
-        sol_file.close();
-
+        std::cout << std::fixed << std::setprecision(10);
+        std::cout << "Results for N = " << N << ":" << std::endl;
+        std::cout << "L1 norm: " << std::accumulate(residual, residual + num_zones, 0.0) / N << std::endl;
+        std::cout << "L2 norm: " << L2 / N << std::endl;
+        std::cout << "Linf norm: " << Linf << std::endl;
+        std::cout << std::endl;
     }
-    cout << "--------------------------------------------------------------------------" << endl;
 
     return 0;
+}
+
+double analytical(double x) {
+    return 100.0 + std::pow(x, 3);
+}
+
+double exact_source(double x) {
+    return 6 * x;
+}
+
+void FD(int n, double* x, double w, double* initU, double* boundU, double* solU, double* residual, int& k) {
+    int num_zones = n + 1;
+    double h = (x[num_zones - 1] - x[0]) / n;
+    double tol = 1.e-5;
+
+    double solUnew[num_zones] = {0.0};
+    double solUold[num_zones] = {0.0};
+
+    for (int i = 0; i < num_zones; ++i) {
+        if (i == 0) {
+            solU[i] = boundU[i];
+        } else if (i == num_zones - 1) {
+            solU[i] = boundU[i];
+        } else {
+            solU[i] = initU[i];
+        }
+    }
+
+    k = 1;
+    for (int i = 0; i < num_zones; ++i) {
+        solUnew[i] = solU[i];
+    }
+
+    while (k < 50) {
+        k++;
+        for (int i = 1; i < num_zones - 1; ++i) {
+            double fval = exact_source(x[i]);
+            solUnew[i] = w * (solUold[i - 1] + solUold[i + 1] + (h * h) * fval) / 2.0 + (1 - w) * solUold[i];
+        }
+
+        for (int i = 0; i < num_zones; ++i) {
+            residual[i] = solUnew[i] - solUold[i];
+        }
+
+        for (int i = 0; i < num_zones; ++i) {
+            solUold[i] = solUnew[i];
+        }
+    }
+
+    for (int i = 0; i < num_zones; ++i) {
+        solU[i] = solUnew[i];
+    }
+}
+
+double frobNorm(double* A, int size) {
+    double norm = 0.0;
+    for (int i = 0; i < size; ++i) {
+        norm += A[i] * A[i];
+    }
+    return std::sqrt(norm);
+}
+
+double LinfNorm(double* vec, int size) {
+    double maxVal = std::abs(vec[0]);
+    for (int i = 1; i < size; ++i) {
+        if (std::abs(vec[i]) > maxVal) {
+            maxVal = std::abs(vec[i]);
+        }
+    }
+    return maxVal;
 }
