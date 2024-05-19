@@ -39,17 +39,26 @@ double calculate_L2_norm(const std::vector<double>& u, double dx) {
     for (double val : u) {
         norm += val * val * dx;
     }
-    return std::sqrt(norm);
+    return std::sqrt( norm);
+}
+
+// Function to calculate L1 norm
+double calculate_L1_norm(const std::vector<double>& u, double dx) {
+    double norm = 0.0;
+    for (double val : u) {
+        norm += std::abs(val);
+    }
+    return norm * dx;
 }
 
 int main() {
     // Mesh parameters
-    std::vector<int> num_zones = {8, 16, 32, 64, 128, 256};
+    std::vector<int> num_zones = {8};
     
     // Loop over different mesh sizes
     for (int N : num_zones) {
         double dx = (b - a) / N;  // mesh spacing
-        double dt = 0.5 * dx * dx / k;  // time step for stability
+        double dt =  0.000001;  // time step for stability
 
         // Initialize solution vector
         std::vector<double> u(N + 1);
@@ -84,10 +93,11 @@ int main() {
 
         // Calculate L2 norm
         double L2_norm = calculate_L2_norm(u, dx);
+        double L1_norm = calculate_L1_norm(u, dx);
 
         // Output norms
         std::cout << "Mesh size: " << N << std::endl;
-        std::cout << "L2 Norm: " << L2_norm/N << std::endl;
+        std::cout << "L2 Norm: " << L1_norm/N << std::endl;
         std::cout << std::endl;
     }
 
