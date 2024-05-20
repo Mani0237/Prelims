@@ -82,7 +82,7 @@ int main() {
             omp_set_num_threads(num_threads);
 
             start = chrono::high_resolution_clock::now();
-            bool result = verify_goldbach(is_prime, limit, schedule_type, 100);
+            bool result = verify_goldbach(is_prime, limit, schedule_type, 200);
             end = chrono::high_resolution_clock::now();
             diff = end - start;
 
