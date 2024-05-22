@@ -7,7 +7,17 @@
 
 using namespace std;
 
-// Function to generate primes using Sieve of Eratosthenes
+
+/**
+ * ---------------------------------------------------------------------------------
+ * @brief function to generateprime numbers using the 
+ *        Sieve of Eratosthenes algorithm.
+ *        https://www.topcoder.com/thrive/articles/sieve-of-eratosthenes-algorithm# 
+ *   
+ * @param is_prime - array indicating whether each number is prime.
+ * @param limit    - Upper limit for generating primes.
+ * ----------------------------------------------------------------------------------
+ */
 void generate_primes(bool* is_prime, int limit) {
     fill(is_prime, is_prime + limit + 1, true);
     is_prime[0] = is_prime[1] = false;
@@ -21,7 +31,22 @@ void generate_primes(bool* is_prime, int limit) {
     }
 }
 
-// Function to verify Goldbach's conjecture
+/**
+ * --------------------------------------------------------------------------------------
+ * @brief Verifies Goldbach's conjecture for even numbers up to a given limit.
+ *
+ * Goldbach's conjecture states that every even integer greater than 2 can be
+ * expressed as the sum of two prime numbers.
+ *
+ * @param is_prime      - Pointer to an array indicating whether each number is prime.
+ * @param limit         - Upper limit for verifying Goldbach's conjecture.
+ * @param schedule_type - schedule type for testing load balancing.
+ * @param chunk_size    - chunk size 
+ * 
+ * @return - True if Goldbach's conjecture holds for all even numbers
+ *           up to the limit, false otherwise.
+ * --------------------------------------------------------------------------------------
+ */
 bool verify_goldbach(bool* is_prime, int limit, omp_sched_t schedule_type, int chunk_size) {
     bool valid = true;
 
@@ -48,6 +73,7 @@ bool verify_goldbach(bool* is_prime, int limit, omp_sched_t schedule_type, int c
 }
 
 int main() {
+
     const int limit = 10000000;
     bool* is_prime = new bool[limit + 1];
 
@@ -82,7 +108,7 @@ int main() {
             omp_set_num_threads(num_threads);
 
             start = chrono::high_resolution_clock::now();
-            bool result = verify_goldbach(is_prime, limit, schedule_type, 200);
+            bool result = verify_goldbach(is_prime, limit, schedule_type, 10000);
             end = chrono::high_resolution_clock::now();
             diff = end - start;
 
