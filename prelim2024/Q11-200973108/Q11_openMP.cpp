@@ -74,7 +74,7 @@ bool verify_goldbach(bool* is_prime, int limit, omp_sched_t schedule_type, int c
 
 int main() {
 
-    const int limit = 10000000;
+    const int limit = 100000000;
     bool* is_prime = new bool[limit + 1];
 
     auto start = chrono::high_resolution_clock::now();

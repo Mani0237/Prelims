@@ -18,7 +18,7 @@ double h(double x) {
 
 int main() {
 
-    const int n = 1000;    // Number of intervals
+    const int n = 1000000;    // Number of intervals
     double a = 0.0;        // lower limit of integration
     double b = 1.0;        // upper limit of integration
     const double I_exact = 1.718281828459045;                  // exact value from integral calculator
