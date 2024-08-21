@@ -1,0 +1,20 @@
+# Ignore PNG image files
+*.png
+
+# Ignore output files
+*.out
+
+# Ignore object files
+*.o
+*.obj
+
+# Ignore any other generated files or directories (customize as needed)
+*.log
+*.tmp
+*.swp
+
+# Ignore all temporary files created by the editor or OS
+*~
+*.bak
+.DS_Store
+Thumbs.db
