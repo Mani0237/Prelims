@@ -1,7 +1,7 @@
 #include <mpi.h>
 #include <iostream>
 #include <cmath>
-#include <iomanip>  // For formatted output
+#include <iomanip>  
 
 #define H(x) (std::exp(x)) // Define the function h(x) = e^x
 
@@ -11,15 +11,15 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    int Np = size;  // Number of processes
-    double a = 0.0, b = 1.0;  // Interval [0,1]
+    int Np = size;                  // Number of processes
+    double a = 0.0, b = 1.0;        // Interval [0,1]
     double h = (b - a) / (2 * Np);  // Width of each subinterval
     double x2i = a + 2 * rank * h;  // x2i for the current process
-    double x2i1 = x2i + h;  // x2i+1
-    double x2i2 = x2i + 2 * h;  // x2i+2
+    double x2i1 = x2i + h;          // x2i+1
+    double x2i2 = x2i + 2 * h;      // x2i+2
 
-    double h_x2i = H(x2i);  // h(x2i)
-    double h_x2i1 = H(x2i1);  // h(x2i+1)
+    double h_x2i = H(x2i);      // h(x2i)
+    double h_x2i1 = H(x2i1);    // h(x2i+1)
     double h_x2i2 = 0.0;
 
     if (rank < Np - 1) {
