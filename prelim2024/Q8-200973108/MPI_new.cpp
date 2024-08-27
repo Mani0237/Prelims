@@ -23,15 +23,15 @@ int main(int argc, char** argv) {
     double h_x2i2 = 0.0;
 
     if (rank < Np - 1) {
-        MPI_Send(&h_x2i1, 1, MPI_DOUBLE, rank + 1, 0, MPI_COMM_WORLD);
+        // MPI_Send(&h_x2i1, 1, MPI_DOUBLE, rank + 1, 0, MPI_COMM_WORLD);
         MPI_Recv(&h_x2i2, 1, MPI_DOUBLE, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     } else {
-        h_x2i2 = H(x2i2);  // Last process calculates h(x2Np)
+        h_x2i2 = H(x2i2);       // Last process calculates h(x2Np)
     }
 
     if (rank > 0) {
-        MPI_Recv(&h_x2i, 1, MPI_DOUBLE, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Send(&h_x2i1, 1, MPI_DOUBLE, rank - 1, 0, MPI_COMM_WORLD);
+        // MPI_Recv(&h_x2i, 1, MPI_DOUBLE, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Send(&h_x2i, 1, MPI_DOUBLE, rank - 1, 0, MPI_COMM_WORLD);
     }
 
     double Ai = h * (h_x2i + 4 * h_x2i1 + h_x2i2) / 3.0;  // Calculate Ai
