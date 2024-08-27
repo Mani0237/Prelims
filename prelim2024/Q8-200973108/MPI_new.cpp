@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     double h = (b - a) / (2 * Np);  // Width of each subinterval
     double x2i = a + 2 * rank * h;  // x2i for the current process
     double x2i1 = x2i + h;          // x2i+1
-    double x2i2 = x2i + 2 * h;      // x2i+2
+    double x2i2 = x2i + 2 * h;      // x2i+3
 
     double h_x2i = H(x2i);      // h(x2i)
     double h_x2i1 = H(x2i1);    // h(x2i+1)
